@@ -17,6 +17,30 @@ class Library {
         }
     }
 
+    public void addUser(int id, String name, int age, String password) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(
+                    "INSERT INTO customers (customer_id, customer_name, age, password)" +
+                            "VALUES (?, ?, ?, ?)");
+            statement.setInt(1, id);
+            statement.setString(2, name);
+            statement.setInt(3, age);
+            statement.setString(4, password);
+
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("New user was registered");
+                System.out.println();
+            }
+            else {
+                System.out.println("Something went wrong");
+                System.out.println();
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     public void addItem(int id, String name, int year, String author) {
         try {
             PreparedStatement statement = connection.prepareStatement(

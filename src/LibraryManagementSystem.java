@@ -7,10 +7,12 @@ public class LibraryManagementSystem {
         Scanner scanner = new Scanner(System.in);
 
         while (true){
+
             System.out.println("1. Sign in as manager");
             System.out.println("2. Sign in as user");
-            System.out.println("3. Exit");
-            System.out.print("Enter your choice (1-3): ");
+            System.out.println("3. Sign up");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice (1-4): ");
             int choice = scanner.nextInt();
             System.out.println();
 
@@ -124,6 +126,21 @@ public class LibraryManagementSystem {
                     break;
 
                 case 3:
+                    System.out.print("Enter user ID: ");
+                    int user_id = scanner.nextInt();
+                    System.out.print("Enter name: ");
+                    scanner.nextLine();
+                    String name = scanner.nextLine();
+                    System.out.print("Enter age: ");
+                    int age = scanner.nextInt();
+                    System.out.print("Enter password: ");
+                    scanner.nextLine();
+                    String password = scanner.nextLine();
+
+                    library.addUser(user_id, name, age, password);
+                    break;
+
+                case 4:
                     System.out.println("Exiting the Library Management System. Goodbye!");
                     scanner.close();
                     System.exit(0);
