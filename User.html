@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to the Library</title>
+    <style>
+        body {
+            background-color: #FF0000;
+            color: #FFFFFF;
+            font-family: Arial, sans-serif;
+        }
+
+        .library-header {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .book-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .book {
+            margin: 20px;
+            text-align: center;
+        }
+
+        .book img {
+            width: 200px;
+            height: 300px;
+        }
+
+        .book-title {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .reserve-button {
+            background-color: #FFFFFF;
+            color: #FF0000;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="library-header">
+        <h1>Welcome to the Library!</h1>
+        <p>Enjoy our book collection and read the usage rules.</p>
+    </div>
+
+    <div class="book-container">
+        <div class="book">
+            <img src="https://www.jkrowling.com/wp-content/uploads/2016/11/HPTSS-1.png" alt="Book 1">
+            <p class="book-title">Harry Potter</p>
+            <button class="reserve-button" onclick="reserveBook(1)">Reserve</button>
+        </div>
+
+        <div class="book">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/To_Kill_a_Mockingbird_%28first_edition_cover%29.jpg/1200px-To_Kill_a_Mockingbird_%28first_edition_cover%29.jpg"
+                alt="Book 2">
+            <p class="book-title">To kill a mockingbird</p>
+            <button class="reserve-button" onclick="reserveBook(2)">Reserve</button>
+        </div>
+
+        <!-- Add more books following the same pattern -->
+
+    </div>
+
+    <script>
+        function reserveBook(bookNumber) {
+            // Redirect to the reservation page for the selected book
+            window.location.href = `http://localhost:63342/LibrarySystem/venv/cgi-bin/templates/book.html?book=${bookNumber}`;
+        }
+    </script>
+</body>
+
+</html>
