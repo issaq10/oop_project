@@ -1,155 +1,274 @@
 import java.util.Scanner;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+
 
 public class LibraryManagementSystem {
     public static void main(String[] args) {
 
-        Library library = new Library();
+        Library library = Library.getInstance();
         Scanner scanner = new Scanner(System.in);
+        JFrame frame = new JFrame("Library Management System");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 200);
+        frame.setLayout(new GridLayout(5, 1));
 
-        while (true){
 
-            System.out.println("1. Sign in as manager");
-            System.out.println("2. Sign in as user");
-            System.out.println("3. Sign up");
-            System.out.println("4. Exit");
-            System.out.print("Enter your choice (1-4): ");
-            int choice = scanner.nextInt();
-            System.out.println();
+        JLabel titleLabel = new JLabel("Welcome!");
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+        JButton managerButton = new JButton("Sign in as manager");
+        JButton userButton = new JButton("Sign in as user");
+        JButton signUpButton = new JButton("Sign up");
+        JButton exitButton = new JButton("Exit");
 
-            switch (choice) {
-                case 1:
-                    Manager manager = new Manager();
-                    System.out.print("Enter the id: ");
-                    int manager_id = scanner.nextInt();
-                    System.out.print("Enter the password: ");
-                    scanner.nextLine();
-                    String manager_password = scanner.nextLine();
+        frame.add(titleLabel);
+        frame.add(managerButton);
+        frame.add(userButton);
+        frame.add(signUpButton);
+        frame.add(exitButton);
 
-                    if (manager.check_manager(manager_id, manager_password)){
-                        System.out.println("Welcome, " + manager.get_name(manager_id));
-                        System.out.println();
-                        while (true){
-                            System.out.println("1. Display Available Books");
-                            System.out.println("2. Add a Book");
-                            System.out.println("3. Remove a Book");
-                            System.out.println("4. Exit");
+        managerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.getContentPane().removeAll();
+                frame.repaint();
+                frame.setLayout(new GridLayout(1, 1));
+                JPanel managerPanel = new JPanel(new GridLayout(3, 2));
 
-                            System.out.print("Enter your choice (1-4): ");
-                            int choice2 = scanner.nextInt();
-                            System.out.println();
+                JLabel userIdLabel = new JLabel("Enter your id:");
+                JTextField userIdField = new JTextField();
+                JLabel passwordLabel = new JLabel("Enter your password:");
+                JPasswordField passwordField = new JPasswordField();
+                JButton signin = new JButton("Sign In");
 
-                            switch (choice2) {
-                                case 1:
+                signin.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Manager manager = new Manager();
+                        int userId = Integer.parseInt(userIdField.getText());
+                        String password = new String(passwordField.getPassword());
+
+                        if (manager.check_manager(userId, password)) {
+                            frame.dispose();
+                            JOptionPane.showMessageDialog(null, "Sign In Successful!");
+
+                            JFrame managerFrame = new JFrame("Manager Menu");
+                            managerFrame.setSize(400, 300);
+                            managerFrame.setLayout(new GridLayout(2, 2));
+
+                            JButton displayBooksButton = new JButton("Display Available Books");
+                            JButton addBookButton = new JButton("Add a Book");
+                            JButton removeBookButton = new JButton("Remove a Book");
+                            JButton exitButton = new JButton("Exit");
+
+                            displayBooksButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
                                     library.displayAvailableItems();
-                                    break;
-                                case 2:
-                                    System.out.print("Enter book ID: ");
-                                    int book_id = scanner.nextInt();
-                                    System.out.print("Enter the title of the new book: ");
-                                    scanner.nextLine();
-                                    String newTitle = scanner.nextLine();
-                                    System.out.print("Enter the year of publication: ");
-                                    int year = scanner.nextInt();
-                                    System.out.print("Enter the author of the new book: ");
-                                    scanner.nextLine();
-                                    String newAuthor = scanner.nextLine();
+                                }
+                            });
 
-                                    library.addItem(book_id, newTitle, year, newAuthor);
-                                    break;
-                                case 3:
-                                    System.out.print("Enter the ID of the item to remove: ");
-                                    int removeId = scanner.nextInt();
+                            addBookButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    String bookIdString = JOptionPane.showInputDialog(frame, "Enter book ID:");
+                                    String title = JOptionPane.showInputDialog(frame, "Enter the title of the new book:");
+                                    String yearString = JOptionPane.showInputDialog(frame, "Enter the year of publication:");
+                                    String author = JOptionPane.showInputDialog(frame, "Enter the author of the new book:");
 
-                                    library.removeItem(removeId);
-                                    break;
-                                case 4:
-                                    System.out.println("Exiting the Library Management System. Goodbye!");
-                                    scanner.close();
-                                    System.exit(0);
+                                    try {
 
-                                default:
-                                    System.out.println("Invalid choice. Please enter a number between 1 and 4.");
-                            }
+                                        int bookId = Integer.parseInt(bookIdString);
+                                        int year = Integer.parseInt(yearString);
+
+
+                                        library.addItem(frame, bookId, title, year, author);
+                                        JOptionPane.showMessageDialog(frame, "Book added successfully!");
+                                    } catch (NumberFormatException ex) {
+                                        JOptionPane.showMessageDialog(frame, "Invalid input! Please enter valid numbers for ID and year.");
+                                    }
+                                }
+                            });
+
+                            removeBookButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    int id = Integer.parseInt(JOptionPane.showInputDialog(managerFrame, "Enter the id of the book to remove:"));
+                                    library.removeItem(frame, id);
+                                }
+                            });
+
+                            exitButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    managerFrame.dispose();
+                                }
+                            });
+
+                            managerFrame.add(displayBooksButton);
+                            managerFrame.add(addBookButton);
+                            managerFrame.add(removeBookButton);
+                            managerFrame.add(exitButton);
+
+                            managerFrame.setVisible(true);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Invalid credentials. Please try again.");
                         }
-
                     }
-                    break;
+                });
 
-                case 2:
-                    Customer customer = new Customer();
-                    System.out.print("Enter the id: ");
-                    int customer_id = scanner.nextInt();
-                    System.out.print("Enter the password: ");
-                    scanner.nextLine();
-                    String customer_password = scanner.nextLine();
+                managerPanel.add(userIdLabel);
+                managerPanel.add(userIdField);
+                managerPanel.add(passwordLabel);
+                managerPanel.add(passwordField);
+                managerPanel.add(signin);
 
-                    if (customer.check_customer(customer_id, customer_password)){
-                        System.out.println("Welcome, " + customer.get_name(customer_id));
-                        System.out.println();
-                        while (true){
-                            System.out.println("1. Display Available Books");
-                            System.out.println("2. Borrow a Book");
-                            System.out.println("3. Return a Book");
-                            System.out.println("4. Exit");
-
-                            System.out.print("Enter your choice (1-4): ");
-                            int choice2 = scanner.nextInt();
-                            System.out.println();
-
-                            switch (choice2) {
-                                case 1:
-                                    library.displayAvailableItems();
-                                    break;
-                                case 2:
-                                    System.out.print("Enter the title of the book to borrow: ");
-                                    scanner.nextLine();
-                                    String borrowTitle = scanner.nextLine();
-                                    library.borrowItem(borrowTitle, customer_id);
-                                    break;
-                                case 3:
-                                    System.out.print("Enter the title of the book to return: ");
-                                    scanner.nextLine();
-                                    String returnTitle = scanner.nextLine();
-                                    library.returnItem(returnTitle);
-                                    break;
-                                case 4:
-                                    System.out.println("Exiting the Library Management System. Goodbye!");
-                                    scanner.close();
-                                    System.exit(0);
-
-                                default:
-                                    System.out.println("Invalid choice. Please enter a number between 1 and 4.");
-                            }
-                        }
-
-                    }
-                    break;
-
-                case 3:
-                    System.out.print("Enter user ID: ");
-                    int user_id = scanner.nextInt();
-                    System.out.print("Enter name: ");
-                    scanner.nextLine();
-                    String name = scanner.nextLine();
-                    System.out.print("Enter age: ");
-                    int age = scanner.nextInt();
-                    System.out.print("Enter password: ");
-                    scanner.nextLine();
-                    String password = scanner.nextLine();
-
-                    library.addUser(user_id, name, age, password);
-                    break;
-
-                case 4:
-                    System.out.println("Exiting the Library Management System. Goodbye!");
-                    scanner.close();
-                    System.exit(0);
-
-                default:
-                    System.out.println("Invalid choice. Please enter a number between 1 and 3.");
+                frame.add(managerPanel);
+                frame.revalidate();
+                frame.repaint();
             }
-        }
+        });
+
+        userButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.getContentPane().removeAll();
+                frame.repaint();
+
+                JLabel userIdLabel = new JLabel("Enter your id!");
+                JTextField userIdField = new JTextField();
+                JLabel passwordLabel = new JLabel("Enter your password!");
+                JTextField passwordField = new JTextField();
+                JButton signin=new JButton("Sign In");
+                signin.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Customer customer = new Customer();
+                        int userId = Integer.parseInt(userIdField.getText());
+                        String password = passwordField.getText();
+
+                        if (customer.check_customer(userId, password)) {
+                            frame.dispose();
+                            JOptionPane.showMessageDialog(frame, "Sign In Successful!");
+                            JFrame userFrame = new JFrame("Manager Menu");
+                            userFrame.setSize(400, 300);
+                            userFrame.setLayout(new GridLayout(5, 2));
+
+                            JButton displayBooksButton = new JButton("Display Available Books");
+                            JButton borrowBookButton = new JButton("Borrow a Book");
+                            JButton returnBookButton = new JButton("Return a Book");
+                            JButton exitButton = new JButton("Exit");
+
+                            displayBooksButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    library.displayAvailableItems();
+
+                                }
+                            });
+
+                            borrowBookButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    String title = JOptionPane.showInputDialog(userFrame, "Enter the title of the book to borrow:");
+                                    library.borrowItem(frame, title, userId);
+
+                                }
+                            });
+
+                            returnBookButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    String title = JOptionPane.showInputDialog(userFrame, "Enter the title of the book to return:");
+                                    library.returnItem(frame, title);
+                                }
+                            });
+
+                            exitButton.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    userFrame.dispose();
+                                }
+                            });
+
+                            userFrame.add(displayBooksButton);
+                            userFrame.add(borrowBookButton);
+                            userFrame.add(returnBookButton);
+                            userFrame.add(exitButton);
+
+                            userFrame.setVisible(true);
+                        }
+
+
+                    }
+
+                });
+                frame.add(userIdLabel);
+                frame.add(userIdField);
+                frame.add(passwordLabel);
+                frame.add(passwordField);
+                frame.add(signin);
+
+                frame.revalidate();
+                frame.repaint();
+
+            }
+
+
+
+        });
+        signUpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame signupframe = new JFrame("SignUp Form");
+                signupframe.setLayout(new GridLayout(5, 2));
+                signupframe.setSize(400, 400);
+
+                JLabel userIdLabel = new JLabel("Enter user ID:");
+                JTextField userIdField = new JTextField();
+                JLabel nameLabel = new JLabel("Enter name:");
+                JTextField nameField = new JTextField();
+                JLabel ageLabel = new JLabel("Enter age:");
+                JTextField ageField = new JTextField();
+                JLabel passwordLabel = new JLabel("Enter password:");
+                JTextField passwordField = new JTextField();
+                JButton addUserButton = new JButton("Add User");
+
+                addUserButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+
+                            int userId = Integer.parseInt(userIdField.getText());
+                            String name = nameField.getText();
+                            int age = Integer.parseInt(ageField.getText());
+                            String password = passwordField.getText();
+
+                            library.addUser(signupframe, userId, name, age, password);
+                            JOptionPane.showMessageDialog(signupframe, "User added successfully!");
+                            signupframe.dispose();
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(signupframe, "Invalid input! Please enter valid numbers for ID and age.");
+                        }
+                    }
+                });
+
+                signupframe.add(userIdLabel);
+                signupframe.add(userIdField);
+                signupframe.add(nameLabel);
+                signupframe.add(nameField);
+                signupframe.add(ageLabel);
+                signupframe.add(ageField);
+                signupframe.add(passwordLabel);
+                signupframe.add(passwordField);
+                signupframe.add(addUserButton);
+                signupframe.setVisible(true);
+            }
+        });
+
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int option = JOptionPane.showConfirmDialog(frame, "Are you sure?", "Exit", JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.YES_OPTION) {
+                    System.exit(0);
+                }
+            }
+        });
+        frame.revalidate();
+        frame.repaint();
+        frame.setVisible(true);
     }
 }
-
-

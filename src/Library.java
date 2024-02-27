@@ -1,3 +1,5 @@
+import javax.swing.*;
+import java.awt.*;
 import java.sql.*;
 
 
@@ -6,9 +8,10 @@ class Library {
     static final String USERNAME = "postgres";
     static final String PASSWORD = "postgres";
     private Connection connection;
+    private static Library instance;
 
 
-    public Library() {
+    private Library() {
         try {
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
         }
@@ -17,7 +20,18 @@ class Library {
         }
     }
 
-    public void addUser(int id, String name, int age, String password) {
+    public static Library getInstance(){
+        if (instance == null){
+            synchronized (Library.class){
+                if (instance == null){
+                    instance = new Library();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void addUser(JFrame frame, int id, String name, int age, String password) {
         try {
             PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO customers (customer_id, customer_name, age, password)" +
@@ -29,36 +43,34 @@ class Library {
 
             int rowsAffected = statement.executeUpdate();
             if (rowsAffected > 0) {
-                System.out.println("New user was registered");
-                System.out.println();
+                JOptionPane.showMessageDialog(frame, "New user was registered");
             }
             else {
-                System.out.println("Something went wrong");
-                System.out.println();
+                JOptionPane.showMessageDialog(frame, "Something went wrong");
             }
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    public void addItem(int id, String name, int year, String author) {
+    public void addItem(JFrame frame, int id, String name, int year, String author) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO books (book_id, book_name, year_of_publ, author)" +
-                            "VALUES (?, ?, ?, ?)");
+                    "INSERT INTO books (book_id, book_name, year_of_publ, author, available)" +
+                            "VALUES (?, ?, ?, ?, ?)");
             statement.setInt(1, id);
             statement.setString(2, name);
             statement.setInt(3, year);
             statement.setString(4, author);
+            statement.setBoolean(5, true);
+
 
             int rowsAffected = statement.executeUpdate();
             if (rowsAffected > 0) {
-                System.out.println("Books was successfully added");
-                System.out.println();
+                JOptionPane.showMessageDialog(frame, "Books was successfully added!");
             }
             else {
-                System.out.println("Something went wrong");
-                System.out.println();
+                JOptionPane.showMessageDialog(frame, "Something went wrong");
             }
         }
         catch (SQLException e) {
@@ -66,19 +78,19 @@ class Library {
         }
     }
 
-    public void removeItem(int id) {
+    public void removeItem(JFrame frame, int id) {
         try {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM books WHERE book_id = ?");
             statement.setInt(1, id);
             int rowsAffected = statement.executeUpdate();
 
             if (rowsAffected > 0) {
-                System.out.println("Books was successfully deleted");
-                System.out.println();
+                JOptionPane.showMessageDialog(frame, "Books was successfully deleted!");
+
             }
             else {
-                System.out.println("Book not found");
-                System.out.println();
+                JOptionPane.showMessageDialog(frame, "Book not Found!");
+
             }
         }
         catch (SQLException e){
@@ -86,7 +98,7 @@ class Library {
         }
     }
 
-    public void borrowItem(String title, int user_id) {
+    public void borrowItem(JFrame frame, String title, int user_id) {
         try {
             PreparedStatement statement = connection.prepareStatement("Select available FROM books WHERE book_name = ?");
             statement.setString(1, title);
@@ -100,17 +112,16 @@ class Library {
 
                     int rowsUpdated = statement2.executeUpdate();
                     if (rowsUpdated > 0) {
-                        System.out.println("The book successfully borrowed");
-                        System.out.println();
+                        JOptionPane.showMessageDialog(frame, "You borrowed a book, do not forget to return!");
                     }
                 }
                 else {
-                    System.out.println("The book is already borrowed");
-                    System.out.println();
+                    JOptionPane.showMessageDialog(frame, "The book is already borrowed!");
                 }
             }
             else {
-                System.out.println("Book not found");
+                JOptionPane.showMessageDialog(frame, "Book not found");
+
             }
         }
         catch (SQLException e) {
@@ -118,7 +129,7 @@ class Library {
         }
     }
 
-    public void returnItem(String title) {
+    public void returnItem(JFrame frame, String title) {
         try {
             PreparedStatement statement = connection.prepareStatement("Select available FROM books WHERE book_name = ?");
             statement.setString(1, title);
@@ -131,17 +142,16 @@ class Library {
 
                     int rowsUpdated = statement2.executeUpdate();
                     if (rowsUpdated > 0) {
-                        System.out.println("The book successfully returned");
-                        System.out.println();
+                        JOptionPane.showMessageDialog(frame, "The book successfully returned");
                     }
                 }
                 else {
-                    System.out.println("The book is already returned");
-                    System.out.println();
+                    JOptionPane.showMessageDialog(frame, "The book is already returned");
+
                 }
             }
             else {
-                System.out.println("Book not found");
+                JOptionPane.showMessageDialog(frame, "Book not found");
             }
 
         }
@@ -151,28 +161,35 @@ class Library {
     }
 
     public void displayAvailableItems() {
+        JFrame frame = new JFrame("Library Management System");
+        frame.setSize(600, 400);
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JTextArea textArea = new JTextArea();
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        textArea.setText(""); // Clear previous content
+
         try {
-            if (connection != null){
+            if (connection != null) {
                 Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery("SELECT * FROM books ORDER BY book_id");
+                ResultSet resultSet = statement.executeQuery("SELECT * FROM books WHERE available = true ORDER BY book_id");
 
                 while (resultSet.next()) {
-                    System.out.println(resultSet.getInt("book_id") + ") '" +
+                    textArea.append(resultSet.getInt("book_id") + ") '" +
                             resultSet.getString("book_name") + "' - " +
-                            resultSet.getString("author") + '(' +
-                            resultSet.getInt("year_of_publ") + ')');
+                            resultSet.getString("author") + " (" +
+                            resultSet.getInt("year_of_publ") + ")\n");
                 }
-                System.out.println();
+                textArea.append("\n");
+            } else {
+                textArea.append("Connection to database is null.\n\n");
             }
-            else {
-                System.out.println("Connection to database is null.");
-                System.out.println();
-            }
-
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+        panel.add(textArea);
+        frame.add(panel);
+        frame.setVisible(true);
     }
 
 }
